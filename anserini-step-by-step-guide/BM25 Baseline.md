@@ -64,6 +64,7 @@ sh target/appassembler/bin/SearchCollection -hits 1000 -parallelism 8 \
 -output runs/run.msmarco-passage.rm3.tsv -format msmarco \
 -bm25 -rm3 -rm3.outputQuery
 ```
+To evaluate the run, rerun the commands in step 5, but replace `runs/run.msmarco-passage.test.trec` with `runs/run.msmarco-passage.rm3.trec` and `runs/run.msmarco-passage.test.tsv` with `runs/run.msmarco-passage.rm3.tsv`
 
 ### Running BM25+BM25PRF
 ```
@@ -72,4 +73,6 @@ sh target/appassembler/bin/SearchCollection -hits 1000 -parallelism 8 \
 -topicreader TsvInt -topics collections/msmarco-passage/queries-with-qrels.tsv \
 -output runs/run.msmarco-passage.bm25prf.tsv -format msmarco \
 -bm25 -bm25prf -bm25prf.outputQuery
+
 ```
+To evaluate the run, rerun the commands in step 5, but replace `runs/run.msmarco-passage.test.trec` with `runs/run.msmarco-passage.bm25prf.trec` and `runs/run.msmarco-passage.test.tsv` with `runs/run.msmarco-passage.bm25prf.tsv`

@@ -18,7 +18,7 @@ sh target/appassembler/bin/IndexCollection -threads 9 -collection JsonCollection
  -generator DefaultLuceneDocumentGenerator -input collections/msmarco-passage/collection_jsonl \
  -index indexes/msmarco-passage/lucene-index-msmarco -storePositions -storeDocvectors -storeRaw 
 ```
-![img.png](img.png)
+![index_info.png](images/index_info.png)
 
 ### Step 3: Filter out queries with no qrels
 ```
@@ -27,7 +27,7 @@ python3 tools/scripts/msmarco/filter_queries.py \
 --queries collections/msmarco-passage/queries.tsv \
 --output collections/msmarco-passage/queries-with-qrels.tsv
 ```
-![img_1.png](img_1.png)
+![test_queries.png](images/test_queries.png)
 
 ### Step 4: Run BM25 with default values, retrieves 1000 passages per query
 ```
@@ -37,7 +37,7 @@ sh target/appassembler/bin/SearchCollection -hits 1000 -parallelism 8 \
  -output runs/run.msmarco-passage.test.tsv -format msmarco \
  -bm25
 ```
-![img_2.png](img_2.png)
+![bm25_retrieval_info.png](images/bm25_retrieval_info.png)
 
 ### Step 5: Evaluate the run using `trec_eval`
 ```

@@ -1,6 +1,11 @@
-# -*- coding: utf-8 -*-
+# Code is based on code snippets from Pyterrier documentation:
+# https://pyterrier.readthedocs.io/en/latest/ltr.html
+
 import time
 import pyterrier as pt
+from pyterrier.measures import *
+import xgboost as xgb
+
 if not pt.started():
     pt.init()
 
@@ -8,7 +13,6 @@ dataset = pt.get_dataset('irds:msmarco-passage/dev')
 
 indexer = pt.IterDictIndexer('./indices/msmarco-passage')
 index_ref = indexer.index(dataset.get_corpus_iter(), fields=['text'])
-
 index = pt.IndexFactory.of("./indices/msmarco-passage/data.properties")
 print(index.getCollectionStatistics().toString())
 
@@ -17,7 +21,6 @@ tf_idf = pt.BatchRetrieve(index, wmodel="TF_IDF")
 pl2 = pt.BatchRetrieve(index, wmodel="PL2")
 dlm = pt.BatchRetrieve(index, wmodel="DirichletLM")
 
-from pyterrier.measures import *
 
 test_queries = pt.get_dataset('irds:msmarco-passage/trec-dl-2019').get_topics()
 test_qrels = pt.get_dataset('irds:msmarco-passage/trec-dl-2019').get_qrels()
@@ -35,15 +38,11 @@ train_qrels = pt.get_dataset('irds:msmarco-passage/train/judged').get_qrels()
 train_queries = pt.get_dataset(
     'irds:msmarco-passage/train/judged'
 ).get_topics().head(2000)
-train_qrels_small = pt.get_dataset('irds:msmarco-passage/train/split200-train').get_qrels()
-train_queries_small = pt.get_dataset('irds:msmarco-passage/train/split200-train').get_topics()
-
 valid_qrels = pt.get_dataset('irds:msmarco-passage/train/split200-valid').get_qrels()
 valid_queries = pt.get_dataset('irds:msmarco-passage/train/split200-valid').get_topics()
 
 pipeline = bm25 >> (tf_idf ** pl2 ** dlm)
 
-import xgboost as xgb
 # this configures XGBoost as LambdaMART
 start_time = time.time()
 lmart_x = xgb.sklearn.XGBRanker(objective='rank:ndcg',
@@ -56,9 +55,7 @@ lmart_x = xgb.sklearn.XGBRanker(objective='rank:ndcg',
 
 lmart_x_pipe = pipeline >> pt.ltr.apply_learned_model(lmart_x, form="ltr")
 lmart_x_pipe.fit(train_queries, train_qrels, valid_queries, valid_qrels)
-
-
-print(f"time: {(time.time() - start_time) / 60}")
+print(f"Time to train: {(time.time() - start_time) / 60} minutes")
 
 print(pt.Experiment(
     [lmart_x_pipe],
